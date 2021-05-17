@@ -11,15 +11,70 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
+    /* ***************************************************************** *
+     * Use as:                                                           *
+     *   cleandbs [filein] [fileout] [option] [value]                    *
+     * Options:                                                          *
+     *   -f, output sampling rate, default 300Hz                         *
+     *   -a, skip 'a' second ahead of each artifact peak, default 0.0002 *
+     *   -p, skip 'p' second after each artifact peak, default 0.005     *
+     *   -t, threshold for artifact peak detection, default 3000         *
+     * ***************************************************************** */
+
+    if(argc<3){
+        cout << "Use as:" << endl;
+        cout << "  cleandbs [filein] [fileout] [option] [value] " << endl;
+        cout << "Options:" << endl;
+        cout << "  -f, output sampling rate, default 300Hz " << endl;
+        cout << "  -a, skip 'a' second ahead of each artifact peak, default 0.0002" << endl;
+        cout << "  -p, skip 'p' second after each artifact peak, default 0.005" << endl;
+        cout << "  -t, threshold for artifact peak detection, default 3000" << endl;
+        return -1;
+    }
+
     // Input and output filename
-    QString filenameIn("test.txt");
-    QString filenameOut("test-out.txt");
+    QString filenameIn(argv[1]);
+    QString filenameOut(argv[2]);
 
     // Default parameters
     double fsOut = 300; // Output sampling rate
     double preArtifact = 0.0002;
     double postArtifact = 0.005;
     double thr = 3000;
+
+    // Get parameters
+    int i = 3;
+    while (i<argc) {
+        QString temp = QString(argv[i]);
+        char option = temp.at(1).toLatin1();
+        switch (option) {
+        case 'f':
+            i++;
+            temp.clear();
+            temp.append(argv[i]);
+            fsOut = temp.toDouble();
+            break;
+        case 'a':
+            i++;
+            temp.clear();
+            temp.append(argv[i]);
+            preArtifact = temp.toDouble();
+            break;
+        case 'p':
+            i++;
+            temp.clear();
+            temp.append(argv[i]);
+            postArtifact = temp.toDouble();
+            break;
+        case 't':
+            i++;
+            temp.clear();
+            temp.append(argv[i]);
+            thr = temp.toDouble();
+            break;
+        }
+        i++;
+    }
 
     // Read header info
     int nChan;
@@ -28,7 +83,6 @@ int main(int argc, char *argv[])
 
     int retn = NSPLFile::readnsplhdr(filenameIn, &nChan, &nPoint, &fs);
     if(retn!=0){
-        cout << "Can not open file !" << endl;
         return -1;
     }
 
