@@ -2,7 +2,6 @@
 #include <QFile>
 #include <QTextStream>
 #include <iostream>
-#include "progressbar.h"
 
 using namespace std;
 
@@ -54,9 +53,7 @@ int NSPLFile::readnspldata(QString filename, double **pData, int m, int n){
     // Skip the header line
     lineStr = txtStream.readLine();
 
-    // Init progress bar
-    ProgressBar *pb = new ProgressBar(nPoint, "Loading data");
-    pb->SetFrequencyUpdate(fs*10);
+    cout << "Loading data ... ";
 
     // Read data
     for(int i=0; i<nChan; i++){
@@ -70,10 +67,8 @@ int NSPLFile::readnspldata(QString filename, double **pData, int m, int n){
         for(int j=0; j<nChan; j++){
             pData[j][i] = spl.at(j).toDouble();
         }
-        pb->Progressed(i+1);
     }
 
-    cout << endl;
     cout << "Finished." << endl;
 
     return 0;
@@ -94,6 +89,8 @@ int NSPLFile::savenspldata(QString filename, double **pData, int nChan, int nPoi
 
     QTextStream txtStream(&file);
 
+    cout << "Saving data ... ";
+
     // Write header
     txtStream << fs << "\t" << nChan << "\t" << nPoint << "\t" << 0 << Qt::endl;
 
@@ -106,5 +103,8 @@ int NSPLFile::savenspldata(QString filename, double **pData, int nChan, int nPoi
     }
 
     file.close();
+
+    cout << "Finished." << endl;
+
     return 0;
 }
