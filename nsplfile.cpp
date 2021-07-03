@@ -34,10 +34,12 @@ int NSPLFile::readnspldata(QString filename, double **pData, int m, int n){
     int nChan=0, nPoint=0, fs=0;
     NSPLFile::readnsplhdr(filename, &nChan, &nPoint, &fs);
 
+
     if(m<nChan||n<nPoint){
         cout << "Allocated space not enough." << endl;
         return -1;
     }
+
 
     // Open file
     QFile file(filename);
@@ -53,7 +55,7 @@ int NSPLFile::readnspldata(QString filename, double **pData, int m, int n){
     // Skip the header line
     lineStr = txtStream.readLine();
 
-    cout << "Loading data ... ";
+    cout << "Loading data ... "<<endl;
 
     // Read data
     for(int i=0; i<nChan; i++){
@@ -66,9 +68,9 @@ int NSPLFile::readnspldata(QString filename, double **pData, int m, int n){
         spl = lineStr.split('\t', Qt::SkipEmptyParts);
         for(int j=0; j<nChan; j++){
             pData[j][i] = spl.at(j).toDouble();
+
         }
     }
-
     cout << "Finished." << endl;
 
     return 0;

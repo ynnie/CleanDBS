@@ -88,8 +88,10 @@ int main(int argc, char *argv[])
 
     // Allocate space for loading data
     double **pData = new double*[nChan];
-    for(int i=0; i<nChan; i++)
+    for(int i=0; i<nChan; i++){
         pData[i] = new double[nPoint];
+    }
+
 
     // Read data
     if(NSPLFile::readnspldata(filenameIn, pData, nChan, nPoint)!=0){
@@ -97,48 +99,67 @@ int main(int argc, char *argv[])
     }
 
     // Open file for saving output data
-    QFile file(filenameOut);
-    if(!file.open(QIODevice::WriteOnly  | QIODevice::Text))
-    {
-        cout << "Cannot create output file." << endl;
-        return -1;
-    }
+    //QFile file(filenameOut);
+    //if(!file.open(QIODevice::WriteOnly  | QIODevice::Text))
+    //{
+    //    cout << "Cannot create output file." << endl;
+    //    return -1;
+    //}
 
-    QTextStream txtStream(&file);
+    //QTextStream txtStream(&file);
 
-    txtStream << fsOut << "\t" << 1 << "\t" << 0 << "\t" << 0 << Qt::endl; // Write header
+    //txtStream << fsOut << "\t" << 1 << "\t" << 0 << "\t" << 0 << Qt::endl; // Write header
 
 
     // Init CleanDBS
     CleanDBS clean(fs, fsOut, preArtifact, postArtifact, thr);
 
-    ProgressBar *pb = new ProgressBar(nPoint, "Processing");
-    pb->SetFrequencyUpdate(fs/2);
+    // Allocate space for output data
+    double **pDataOut = new double*[nChan];
+    int length = ceil(nPoint*fsOut/fs) + 5;
+    int lengthOut = 0;
 
-    // Main loop
-    for(int i=0; i<nPoint; i++){
-        double sample = pData[0][i];
-
-        double sampleOut = 0;
-
-        if(clean.recieve(sample, &sampleOut)){
-            txtStream << sampleOut << Qt::endl;
-        }
-
-        pb->Progressed(i+1);
+    for(int i=0; i<nChan; i++){
+        pDataOut[i] = new double[length];
     }
 
-    // Clean up
-    file.close();
+
+    // Main loop
+    for(int k=0; k<nChan; k++){
+        cout<< "Channel:" << k <<endl;
+        ProgressBar *pb = new ProgressBar(nPoint, "Processing");
+        pb->SetFrequencyUpdate(fs/2);
+        lengthOut = 0;
+        for(int i=0; i<nPoint; i++){
+            double sample = pData[k][i];
+
+            double sampleOut = 0;
+
+            if(clean.recieve(sample, &sampleOut)){
+                //txtStream << sampleOut << Qt::endl;
+                pDataOut[k][lengthOut] = sampleOut;
+                lengthOut++;
+            }
+            pb->Progressed(i+1);
+        }
+        cout<<endl;
+    }
+
+    // Save data
+    if(NSPLFile::savenspldata(filenameOut, pDataOut, nChan, lengthOut, fsOut)!=0){
+        return -1;
+    }
 
     for(int i=0; i<nChan; i++){
         delete [] pData[i];
+        delete [] pDataOut[i];
     }
 
     delete [] pData;
+    delete [] pDataOut;
 
     cout << endl;
-    cout << "Finished!" << endl;
+    cout << "Program Finished!" << endl;
 
     return 0;
 }
