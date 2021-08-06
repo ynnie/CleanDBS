@@ -17,8 +17,8 @@ int main(int argc, char *argv[])
      * Options:                                                          *
      *   -f, output sampling rate, default 300Hz                         *
      *   -a, skip 'a' second ahead of each artifact peak, default 0.0002 *
-     *   -p, skip 'p' second after each artifact peak, default 0.005     *
-     *   -t, threshold for artifact peak detection, default 3000         *
+     *   -p, skip 'p' second after each artifact peak, default 0.004     *
+     *   -t, threshold for artifact peak detection, default 1000         *
      * ***************************************************************** */
 
     if(argc<3){
@@ -27,8 +27,8 @@ int main(int argc, char *argv[])
         cout << "Options:" << endl;
         cout << "  -f, output sampling rate, default 300Hz " << endl;
         cout << "  -a, skip 'a' second ahead of each artifact peak, default 0.0002" << endl;
-        cout << "  -p, skip 'p' second after each artifact peak, default 0.005" << endl;
-        cout << "  -t, threshold for artifact peak detection, default 3000" << endl;
+        cout << "  -p, skip 'p' second after each artifact peak, default 0.004" << endl;
+        cout << "  -t, threshold for artifact peak detection, default 1000" << endl;
         return -1;
     }
 
@@ -39,8 +39,8 @@ int main(int argc, char *argv[])
     // Default parameters
     double fsOut = 300; // Output sampling rate
     double preArtifact = 0.0002;
-    double postArtifact = 0.005;
-    double thr = 3000;
+    double postArtifact = 0.004;
+    double thr = 1000;
 
     // Get parameters
     int i = 3;
@@ -113,21 +113,21 @@ int main(int argc, char *argv[])
 
 
     // Main loop
-    for(int k=0; k<nChan; k++){
-        cout<< "Channel:" << k <<endl;
+    for(int i=0; i<nChan; i++){
+        cout<< "Channel:" << i <<endl;
         ProgressBar *pb = new ProgressBar(nPoint, "Processing");
         pb->SetFrequencyUpdate(fs/2);
         lengthOut = 0;
-        for(int i=0; i<nPoint; i++){
-            double sample = pData[k][i];
+        for(int j=0; j<nPoint; j++){
+            double sample = pData[i][j];
 
             double sampleOut = 0;
 
             if(clean.recieve(sample, &sampleOut)){
-                pDataOut[k][lengthOut] = sampleOut;
+                pDataOut[i][lengthOut] = sampleOut;
                 lengthOut++;
             }
-            pb->Progressed(i+1);
+            pb->Progressed(j+1);
         }
         cout<<endl;
     }

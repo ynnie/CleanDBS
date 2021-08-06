@@ -8,10 +8,12 @@ public:
     ~CleanDBS();
 
     bool recieve(double sampleIn, double *sampleOut);
+    bool recieve(double sampleIn, double *sampleOut, double stimInterval);
 
 private:
     double interpolate(double sample1, double time1, double sample2, double time2, double timeOut);
     bool isArtifact(double sample);
+    bool isArtifact(double sample, double stimInterval);
 
     void bufferAppend(double sample);
     double getBufferedSample(int i);
